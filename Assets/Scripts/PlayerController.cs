@@ -150,8 +150,6 @@ public class PlayerController : PhysicsCharacter {
     Animator anim;
     Camera cam;
 
-    bool bDodgeStill = false;
-
     LayerMask groundMask;
     LayerMask enemiesMask;
 
@@ -168,9 +166,10 @@ public class PlayerController : PhysicsCharacter {
     // Fields to manipulate the Dodge
     [Header("Dodge"), SerializeField] float dodgePower = 100f; // Force forward when dodging
     [SerializeField] float dodgeUpPower = 20f; // This defines the applied Dodge Up Power
-    private float appliedDodgeUpPower; // The actual force getting applied upwards when dodging
+    [SerializeField] float dodgeDuration = 1f;
+    float appliedDodgeUpPower; // The actual force getting applied upwards when dodging
+    float timeWhenDodgeStarted;
     [SerializeField] float dodgeCooldown = 1f;
-    bool bDodgable = true; // Stores wether the player is able to dodge or not
 
     // Fields to manipulate the attack
     [Header("Attack"), SerializeField] float attackReach = 0.2f; // How far the attack hitbox reaches
@@ -224,10 +223,11 @@ public class PlayerController : PhysicsCharacter {
             {
                 Attack();
             }
-            if (bGrounded || bOnWall)
+            if (input.Dodge && bGrounded || bOnWall)
             {
-                // Start the dodging process if wanted
-                CheckForDodge();
+                playerState = State.dodging;
+                timeWhenDodgeStarted = Time.realtimeSinceStartup;
+                appliedDodgeUpPower = dodgeUpPower;
             }
             // Checks for input for healing
             if (input.Heal && HealthJuice > 0 && Health < maxHealth)
@@ -276,7 +276,15 @@ public class PlayerController : PhysicsCharacter {
         }
         else if(playerState == State.dodging)
         {
-
+            if (Time.realtimeSinceStartup < timeWhenDodgeStarted + dodgeDuration)
+            {
+                appliedDodgeUpPower -= appliedDodgeUpPower / 10;
+                velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, appliedDodgeUpPower * Time.fixedDeltaTime);
+            }
+            else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
+            {
+                playerState = State.freeToMove;
+            }
         }
         else if(playerState == State.healing)
         {
@@ -433,61 +441,6 @@ public class PlayerController : PhysicsCharacter {
         {
             velocity.y += upwardsVeloAfterHitDown * Time.fixedDeltaTime;
             yield return new WaitForEndOfFrame();
-        }
-    }
-
-    #endregion
-
-    #region Dodge
-
-    /// <summary>
-    /// Set up the dodging process
-    /// </summary>
-    private void CheckForDodge()
-    {
-        if (input.Dodge && playerState != State.dodging && bDodgable)
-        {
-            playerState = State.dodging;
-            appliedDodgeUpPower = dodgeUpPower;
-            Dodge();
-        }
-        if (playerState == State.dodging)
-        {
-            appliedDodgeUpPower -= appliedDodgeUpPower / 10;
-            Dodge();
-        }
-    }
-
-    /// <summary>
-    /// The actual application of force whilst dodging
-    /// </summary>
-    private void Dodge()
-    {
-        velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, appliedDodgeUpPower * Time.fixedDeltaTime);
-        bDodgable = false;
-    }
-
-    /// <summary>
-    /// End the Dodge process
-    /// </summary>
-    private void EndDodge()
-    {
-        anim.SetBool("Dodging", false);
-        playerState = State.freeToMove;
-        StartCoroutine(DodgeCooldown());
-    }
-
-    /// <summary>
-    /// Wait for the dodge to be available again
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator DodgeCooldown()
-    {
-        yield return new WaitForSeconds(dodgeCooldown);
-        bDodgable = true;
-        if (bDodgeStill)
-        {
-            bDodgeStill = false;
         }
     }
 
