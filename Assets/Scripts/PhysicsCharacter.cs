@@ -1,0 +1,172 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PhysicsCharacter : MonoBehaviour {
+
+    struct PlayerRaycasts // To store the informations of raycasts around the player to calculate physics
+    {
+        public RaycastHit2D bottomLeft;
+        public RaycastHit2D bottomRight;
+        public RaycastHit2D upperLeft;
+        public RaycastHit2D lowerLeft;
+        public RaycastHit2D upperRight;
+        public RaycastHit2D lowerRight;
+        public RaycastHit2D top;
+    }
+    private PlayerRaycasts raycasts; // Stores the actual information of the raycasts to calculate physics
+
+    protected Vector2 velocity;
+    [SerializeField] protected float veloYLimit = 1f;
+
+    protected bool bGrounded = false; // Stores if the player is on the ground or not
+    protected bool bOnWall = false; // Stores if the player is on a wall or not
+
+    #region Unity Messages
+
+    protected virtual void FixedUpdate()
+    {
+        UpdateRaycasts();
+        CheckForValidVelocity();
+    }
+
+    #endregion
+
+    #region HelperMethods
+
+    /// <summary>
+    /// Make sure the velocity does not violate the laws of physics in this game
+    /// </summary>
+    void CheckForValidVelocity()
+    {
+        // Check for ground under the player
+        if (bGrounded && velocity.y < 0)
+        {
+            velocity.y = 0;
+        }
+
+        // Checking for colliders to the sides
+        if (WallInWay())
+        {
+            velocity.x = 0f;
+        }
+
+        // Make sure, velocity in y axis does not get over limit
+        if (velocity.y < veloYLimit)
+        {
+            velocity.y = veloYLimit;
+        }
+
+        // Check if something is above the player and let him bounce down again relative to the force he went up with
+        if (RaycastForTag("Ground", raycasts.top) && velocity.y > 0)
+        {
+            velocity.y = -velocity.y / 2;
+        }
+    }
+
+    /// <summary>
+    /// Checks if there are walls in the direction the player is facing
+    /// </summary>
+    /// <returns> True if there is a wall. False when there is none</returns>
+    bool WallInWay()
+    {
+        if (transform.localScale.x < 0)
+        {
+            if (RaycastForTag("Ground", raycasts.upperLeft, raycasts.lowerLeft))
+            {
+                bOnWall = true;
+                return true;
+            }
+        }
+        else if (transform.localScale.x > 0)
+        {
+            if (RaycastForTag("Ground", raycasts.upperRight, raycasts.lowerRight))
+            {
+                bOnWall = true;
+                return true;
+            }
+        }
+        bOnWall = false;
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if the player is on the ground or not
+    /// </summary>
+    private void CheckGrounded()
+    {
+        // When the bottom left collider hit something tagged as ground
+        if (RaycastForTag("Ground", raycasts.bottomLeft) || RaycastForTag("Ground", raycasts.bottomRight))
+        {
+            bGrounded = true;
+            velocity.y = 0f;
+        }
+        // Otherwise the player is not grounded
+        else
+        {
+            bGrounded = false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if there is a raycast of the given in parameters hitting an object with the right tag
+    /// </summary>
+    /// <param name="tag"></param>
+    /// <param name="rayArray"></param>
+    /// <returns> True if there was any raycast hitting an object with the right tag. False if there was none.</returns>
+    bool RaycastForTag(string tag, params RaycastHit2D[] rayArray)
+    {
+        for (int i = 0; i < rayArray.Length; i++)
+        {
+            if (rayArray[i].collider != null)
+            {
+                if (rayArray[i].collider.tag == tag)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Check every raycast from the raycasts struct and return the first one, which found an object which matched the tag 
+    /// </summary>
+    /// <param name="tag"></param>
+    /// <param name="rayArray"></param>
+    /// <returns> The first raycast who hit an object with the right tag</returns>
+    private RaycastHit2D? WhichRaycastForTag(string tag, params RaycastHit2D[] rayArray)
+    {
+        for (int i = 0; i < rayArray.Length; i++)
+        {
+            if (rayArray[i].collider != null)
+            {
+                if (rayArray[i].collider.tag == tag)
+                {
+                    return rayArray[i];
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Update all the different raycast hit values to calculate physics
+    /// </summary>
+    void UpdateRaycasts()
+    {
+        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.01f + Vector3.down * 0.04f, Vector2.down, 0.01f);
+        raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.02f + Vector3.down * 0.04f, Vector2.down, 0.01f);
+
+        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.03f + Vector3.right * 0.02f, Vector2.left, 0.01f);
+        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.04f + Vector3.right * 0.02f, Vector2.left, 0.01f);
+
+        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.03f + Vector3.right * -0.03f, Vector2.right, 0.01f);
+        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.04f + Vector3.right * -0.03f, Vector2.right, 0.01f);
+
+        raycasts.top = Physics2D.Raycast(transform.position + Vector3.right * -0.001f, Vector2.up, 0.02f);
+    }
+
+    #endregion
+
+}
