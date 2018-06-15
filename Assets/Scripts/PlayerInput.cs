@@ -49,11 +49,11 @@ public class PlayerInput : MonoBehaviour, IInput {
         {
             if (Input.GetButtonDown("Jump"))
             {
-                return 2;
+                return 1;
             }
             else if(Input.GetButton("Jump"))
             {
-                return 1;
+                return 2;
             }
             return 0;
         }

@@ -16,7 +16,9 @@ public class PhysicsCharacter : MonoBehaviour {
     }
     private PlayerRaycasts raycasts; // Stores the actual information of the raycasts to calculate physics
 
-    protected Vector2 velocity;
+    [SerializeField] float gravity;
+
+    protected Vector3 velocity;
     [SerializeField] protected float veloYLimit = 1f;
 
     protected bool bGrounded = false; // Stores if the player is on the ground or not
@@ -27,7 +29,14 @@ public class PhysicsCharacter : MonoBehaviour {
     protected virtual void FixedUpdate()
     {
         UpdateRaycasts();
+        // Apply gravity
+        if (!bGrounded)
+        {
+            velocity += new Vector3(0, -gravity * Time.fixedDeltaTime);
+        }
         CheckForValidVelocity();
+        // Apply the velocity to the transform
+        transform.position += velocity;
     }
 
     #endregion

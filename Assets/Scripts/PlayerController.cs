@@ -148,8 +148,12 @@ public class PlayerController : PhysicsCharacter {
 
     PlayerInput input;
     Animator anim;
+    Camera cam;
 
     bool bDodgeStill = false;
+
+    LayerMask groundMask;
+    LayerMask enemiesMask;
 
     // Fields to manipulate the jump
     [Header("Jump & Physics"), SerializeField] float jumpPower = 10;
@@ -157,7 +161,7 @@ public class PlayerController : PhysicsCharacter {
 
     // Fields to manipulate the knockback Applied to the player
     [Header("Knockback"), SerializeField] float knockBackCapY = 2f; // the highest velocity the player can be vertically knocked back
-    Vector2 knockBackForce;
+    Vector3 knockBackForce;
     [SerializeField] float knockBackDuration = 0.05f; // The amount of seconds, the player will be knocked back
     [SerializeField] int framesFreezedAfterHit = 8; // The amount of frames the player will be forced to stand still when he is being hit
 
@@ -171,9 +175,10 @@ public class PlayerController : PhysicsCharacter {
     // Fields to manipulate the attack
     [Header("Attack"), SerializeField] float attackReach = 0.2f; // How far the attack hitbox reaches
     [SerializeField] float attackCooldown = 1f;
-    bool bAttackable = true; // Stores wether the player is able to attack or not
+    [SerializeField] float attackHitBoxDuration = 0.5f;
+    float timeWhenAttackStarted;
     [SerializeField] float knockBackStrength = 3f; // The amount of knockback the player is applying to hit enemies
-    Vector2 attackDirection; // The direction for the raycast, checking for enemies to hit
+    Vector3 attackDirection; // The direction for the raycast, checking for enemies to hit
     [SerializeField] float upwardsVeloAfterHitDown = 0.06f; // The velocity with which the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
 
@@ -198,12 +203,96 @@ public class PlayerController : PhysicsCharacter {
     {
         input = GetComponent<PlayerInput>();
         anim = GetComponent<Animator>();
+        cam = Camera.main;
         InitializeAttributes();
+
+        // Create LayerMasks
+        int groundLayer = LayerMask.NameToLayer("Ground");
+        groundLayer = 1 << groundLayer;
+
+        int enemiesLayer = LayerMask.NameToLayer("Enemies");
+        enemiesMask = 1 << enemiesLayer;
     }
 
     // Update is called once per frame
     void Update () {
-		
+		if(playerState == State.freeToMove)
+        {
+            // Setting the x velocity when player is not knocked back
+            velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
+            if (input.Attack)
+            {
+                Attack();
+            }
+            if (bGrounded || bOnWall)
+            {
+                // Start the dodging process if wanted
+                CheckForDodge();
+            }
+            // Checks for input for healing
+            if (input.Heal && HealthJuice > 0 && Health < maxHealth)
+            {
+                playerState = State.healing;
+            }
+            Jump();
+        }
+        else if(playerState == State.attacking)
+        {
+            // Setting the x velocity when player is not knocked back
+            velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
+            if(Time.realtimeSinceStartup < timeWhenAttackStarted + attackHitBoxDuration)
+            {
+                AttackHitboxOut();
+            }
+            else if(Time.realtimeSinceStartup > timeWhenAttackStarted + attackHitBoxDuration + attackCooldown)
+            {
+                playerState = State.freeToMove;
+            }
+        }
+        else if(playerState == State.knockedBack)
+        {
+            // Apply knockback when the player is currently getting knocked back
+            if (knockBackForce.y > knockBackCapY)
+            {
+                knockBackForce.y = knockBackCapY;
+            }
+            if (knockBackForce.y < 0)
+            {
+                knockBackForce.y = 0;
+            }
+            // Check if knockback would let player end up in wall, if not apply it
+            if (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude, groundMask))
+            {
+                velocity += knockBackForce;
+            }
+            else
+            {
+                // Get Knocked back onto the wall
+                while (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude / 10, groundMask))
+                {
+                    velocity += knockBackForce / 10;
+                }
+            }
+        }
+        else if(playerState == State.dodging)
+        {
+
+        }
+        else if(playerState == State.healing)
+        {
+            if (input.Heal)
+            {
+                velocity = new Vector3(0f, velocity.y);
+                if (HealthJuice > 0 && Health < maxHealth)
+                {
+                    Heal();
+                }
+            }
+            else
+            {
+                playerState = State.freeToMove;
+            }
+        }
 	}
 
     #region Helper Methods
@@ -289,6 +378,161 @@ public class PlayerController : PhysicsCharacter {
         else
         {
             anim.SetBool("Idling", true);
+        }
+    }
+
+    #endregion
+
+    #region Attack
+
+    /// <summary>
+    /// Make the player attack, setting the direction of attack, hitbox and animation fields
+    /// </summary>
+    private void Attack()
+    {
+        if (input.Horizontal != 0f || input.Vertical != 0f)
+        {
+            attackDirection = new Vector3(input.Horizontal, input.Vertical);
+        }
+        else
+        {
+            attackDirection = new Vector3(transform.localScale.x, 0f);
+        }
+        playerState = State.attacking;
+        timeWhenAttackStarted = Time.realtimeSinceStartup;
+    }
+
+    /// <summary>
+    /// Check if an enemy is hit with the ray in the direction of the attack and damages him if so
+    /// </summary>
+    /// <param name="direction"></param>
+    private void AttackHitboxOut()
+    {
+        Collider2D[] enemiesHit = Physics2D.OverlapBoxAll(transform.position + attackDirection, new Vector2(attackReach, attackReach), 0f, enemiesMask);
+        bool bAlreadyHit = false;
+        if (enemiesHit.Length > 0 && !bAlreadyHit)
+        {
+            foreach(Collider2D coll in enemiesHit)
+            if (coll.tag == "Enemy")
+            {
+                // Calculate the direction, the player has to knock the opponent away
+                Vector3 knockDirection = coll.gameObject.transform.position - transform.position;
+                coll.gameObject.GetComponent<GeneralEnemy>().TakeDamage(attack, knockDirection.normalized * knockBackStrength);
+                bAlreadyHit = true;
+                if (velocity.y < 0)
+                {
+                    StartCoroutine(ExtraUpVeloAfterHitDown(upwardsVeloAfterHitDownTime));
+                }
+            }
+        }
+    }
+
+    IEnumerator ExtraUpVeloAfterHitDown(float duration)
+    {
+        for (float t = 0; t < duration; t += Time.fixedDeltaTime)
+        {
+            velocity.y += upwardsVeloAfterHitDown * Time.fixedDeltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    #endregion
+
+    #region Dodge
+
+    /// <summary>
+    /// Set up the dodging process
+    /// </summary>
+    private void CheckForDodge()
+    {
+        if (input.Dodge && playerState != State.dodging && bDodgable)
+        {
+            playerState = State.dodging;
+            appliedDodgeUpPower = dodgeUpPower;
+            Dodge();
+        }
+        if (playerState == State.dodging)
+        {
+            appliedDodgeUpPower -= appliedDodgeUpPower / 10;
+            Dodge();
+        }
+    }
+
+    /// <summary>
+    /// The actual application of force whilst dodging
+    /// </summary>
+    private void Dodge()
+    {
+        velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, appliedDodgeUpPower * Time.fixedDeltaTime);
+        bDodgable = false;
+    }
+
+    /// <summary>
+    /// End the Dodge process
+    /// </summary>
+    private void EndDodge()
+    {
+        anim.SetBool("Dodging", false);
+        playerState = State.freeToMove;
+        StartCoroutine(DodgeCooldown());
+    }
+
+    /// <summary>
+    /// Wait for the dodge to be available again
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator DodgeCooldown()
+    {
+        yield return new WaitForSeconds(dodgeCooldown);
+        bDodgable = true;
+        if (bDodgeStill)
+        {
+            bDodgeStill = false;
+        }
+    }
+
+    #endregion
+
+    #region Healing
+
+    /// <summary>
+    /// If the Health is not up to its maximum, the player takes one health juice and heals himself, gaining one health point. The healCounter prevents the healing from taking place too fast
+    /// </summary>
+    private void Heal()
+    {
+        if (Health < maxHealth)
+        {
+            if (healCounter < healDuration)
+            {
+                healCounter++;
+            }
+            else
+            {
+                healCounter = 0;
+                HealthJuice--;
+                Health++;
+                cam.orthographicSize -= zoomAmountWhenHealing;
+            }
+        }
+    }
+
+    #endregion
+
+    #region Jump
+
+    /// <summary>
+    /// Start the Jump process
+    /// </summary>
+    private void Jump()
+    {
+        if (input.Jump == 1 && bGrounded || input.Jump == 1 && bOnWall)
+        {
+            velocity += new Vector3(0f, jumpPower * Time.fixedDeltaTime);
+        }
+        // Make the player fall less fast when still holding the jump button
+        if (input.Jump == 0 && !bGrounded)
+        {
+            velocity -= new Vector3(0f, fallMultiplier * Time.fixedDeltaTime);
         }
     }
 
