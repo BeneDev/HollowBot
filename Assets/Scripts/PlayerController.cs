@@ -238,6 +238,7 @@ public class PlayerController : PhysicsCharacter {
             }
             if (input.Attack)
             {
+                anim.SetTrigger("Attack");
                 Attack();
             }
             if (input.Dodge && Time.realtimeSinceStartup >= timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
