@@ -91,6 +91,14 @@ public class PlayerController : PhysicsCharacter {
         }
     }
 
+    public int Damage
+    {
+        get
+        {
+            return damage;
+        }
+    }
+
     #endregion
 
     #region Fields
@@ -121,9 +129,9 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] int maxHealthJuice = 100;
     private int healthJuice = 100;
 
-    [SerializeField] int baseAttack = 5;
-    [SerializeField] int attackPerLevelUp = 3;
-    private int attack = 5;
+    [SerializeField] int baseDamage = 5;
+    [SerializeField] int damagePerLevelUp = 3;
+    private int damage = 5;
 
     [SerializeField] int baseDefense = 5;
     [SerializeField] int defensePerLevelUp = 3;
@@ -365,7 +373,7 @@ public class PlayerController : PhysicsCharacter {
         Exp -= expToNextLevel;
         ExpToNextLevel = (int)Mathf.Pow(level, 2);
         defense += defensePerLevelUp;
-        attack += attackPerLevelUp;
+        damage += damagePerLevelUp;
     }
 
     private void InitializeAttributes()
@@ -377,7 +385,7 @@ public class PlayerController : PhysicsCharacter {
         HealthJuice = maxHealthJuice;
 
         // Make the player have the base attack value at start
-        attack = baseAttack;
+        damage = baseDamage;
 
         ExpToNextLevel = 1;
         Exp = 0;

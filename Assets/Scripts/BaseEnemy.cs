@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// The Script of which all enemies inherit, providing them with general methods and attributes, necessary for an enemy to work properly
 /// </summary>
-public class GeneralEnemy : MonoBehaviour{
+public class BaseEnemy : MonoBehaviour{
 
     #region Properties
 
