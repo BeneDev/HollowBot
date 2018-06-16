@@ -122,18 +122,18 @@ public class PhysicsCharacter : MonoBehaviour {
     /// </summary>
     private void CheckGrounded()
     {
-        // When the bottom left collider hit something tagged as ground
+        // When the bottom raycasts hit ground
         if (raycasts.bottomLeft || raycasts.bottomRight)
         {
             bGrounded = true;
             velocity.y = 0f;
             if(raycasts.bottomLeft.distance < 0.7f)
             {
-                transform.position += Vector3.up * (0.75f - raycasts.bottomLeft.distance);
+                transform.position += Vector3.up * ((0.75f - (raycasts.bottomLeft.distance)) / 10f);
             }
             else if (raycasts.bottomLeft.distance < 0.7f)
             {
-                transform.position += Vector3.up * (0.75f - raycasts.bottomRight.distance);
+                transform.position += Vector3.up * ((0.75f - (raycasts.bottomRight.distance)) / 10f);
             }
         }
         // Otherwise the player is not grounded
