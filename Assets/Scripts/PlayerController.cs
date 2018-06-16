@@ -154,6 +154,9 @@ public class PlayerController : PhysicsCharacter {
 
     // Fields to manipulate the jump
     [Header("Jump & Physics"), SerializeField] float jumpPower = 10;
+    float appliedJumpPower;
+    [SerializeField] float jumpDuration = 0.5f;
+    float lastTimeJumped;
     [SerializeField] float fallMultiplier = 2f; // The higher this value, the slower the player will fall after jumping up, when still holding jump and the faster he will fall when not holding it
 
     // Fields to manipulate the knockback Applied to the player
@@ -211,12 +214,28 @@ public class PlayerController : PhysicsCharacter {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update ()
+    {
         CheckForInput();
 		if(playerState == State.freeToMove)
         {
             // Setting the x velocity when player is not knocked back
             velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
+            if (input.Jump == 1 && bGrounded || input.Jump == 1 && bOnWall)
+            {
+                lastTimeJumped = Time.realtimeSinceStartup;
+                appliedJumpPower = jumpPower;
+            }
+            if(Time.realtimeSinceStartup < lastTimeJumped + jumpDuration && input.Jump == 2)
+            {
+                velocity.y += appliedJumpPower * Time.deltaTime;
+                appliedJumpPower *= lastTimeJumped + jumpDuration - Time.realtimeSinceStartup;
+            }
+            // Make the player fall faster when not holding the jump button
+            if (input.Jump == 0 && !bGrounded)
+            {
+                velocity.y -= fallMultiplier * Time.deltaTime;
+            }
             if (input.Attack)
             {
                 Attack();
@@ -232,7 +251,6 @@ public class PlayerController : PhysicsCharacter {
             {
                 playerState = State.healing;
             }
-            Jump();
         }
         else if(playerState == State.attacking)
         {
@@ -299,6 +317,7 @@ public class PlayerController : PhysicsCharacter {
                 playerState = State.freeToMove;
             }
         }
+        transform.position += velocity;
 	}
 
     #region Helper Methods
@@ -470,22 +489,6 @@ public class PlayerController : PhysicsCharacter {
     #endregion
 
     #region Jump
-
-    /// <summary>
-    /// Start the Jump process
-    /// </summary>
-    private void Jump()
-    {
-        if (input.Jump == 1 && bGrounded || input.Jump == 1 && bOnWall)
-        {
-            velocity += new Vector3(0f, jumpPower * Time.fixedDeltaTime);
-        }
-        // Make the player fall less fast when still holding the jump button
-        if (input.Jump == 0 && !bGrounded)
-        {
-            velocity -= new Vector3(0f, fallMultiplier * Time.fixedDeltaTime);
-        }
-    }
 
     #endregion
 

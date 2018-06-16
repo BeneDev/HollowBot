@@ -23,6 +23,8 @@ public class PhysicsCharacter : MonoBehaviour {
     protected Vector3 velocity;
     [SerializeField] protected float veloYLimit = 1f;
 
+    [SerializeField] protected float drag = 1f;
+
     protected bool bGrounded = false; // Stores if the player is on the ground or not
     protected bool bOnWall = false; // Stores if the player is on a wall or not
 
@@ -84,6 +86,9 @@ public class PhysicsCharacter : MonoBehaviour {
         {
             velocity.y = -velocity.y / 2;
         }
+
+        // Apply drag to velocity
+        velocity = velocity * (1 - Time.fixedDeltaTime * drag);
     }
 
     /// <summary>
@@ -165,12 +170,12 @@ public class PhysicsCharacter : MonoBehaviour {
         raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
         raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
 
-        raycasts.top = Physics2D.Raycast(transform.position, Vector2.up, 0.75f, groundMask);
+        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.75f, groundMask);
     }
 
     //private void OnDrawGizmos()
     //{
-    //    Debug.DrawRay(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left * 0.75f);
+    //    Debug.DrawRay(transform.position + Vector3.up * 0.75f, Vector2.up * 0.75f);
     //}
 
     #endregion
