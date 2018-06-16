@@ -236,7 +236,7 @@ public class PlayerController : PhysicsCharacter {
             {
                 velocity.y -= fallMultiplier * Time.fixedDeltaTime;
             }
-            if (input.Attack)
+            if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackHitBoxDuration + attackCooldown)
             {
                 anim.SetTrigger("Attack");
                 Attack();
@@ -261,7 +261,7 @@ public class PlayerController : PhysicsCharacter {
             {
                 AttackHitboxOut();
             }
-            else if(Time.realtimeSinceStartup > timeWhenAttackStarted + attackHitBoxDuration + attackCooldown)
+            else if(Time.realtimeSinceStartup > timeWhenAttackStarted + attackHitBoxDuration)
             {
                 playerState = State.freeToMove;
             }
