@@ -326,8 +326,23 @@ public class PlayerController : PhysicsCharacter {
             velocity += new Vector3(0, -gravity * Time.fixedDeltaTime);
         }
         CheckForValidVelocity();
-        anim.SetFloat("XVelocity", velocity.x);
+        if(velocity.x >= 0)
+        {
+            anim.SetFloat("XVelocity", velocity.x);
+        }
+        else
+        {
+            anim.SetFloat("XVelocity", -velocity.x);
+        }
         anim.SetFloat("YVelocity", velocity.y);
+        if (bGrounded && input.Horizontal == 0f)
+        {
+            anim.SetBool("Idle", true);
+        }
+        else
+        {
+            anim.SetBool("Idle", false);
+        }
         transform.position += velocity;
 	}
 
