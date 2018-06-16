@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PhysicsCharacter : MonoBehaviour {
 
-    struct PlayerRaycasts // To store the informations of raycasts around the player to calculate physics
+    protected struct PlayerRaycasts // To store the informations of raycasts around the player to calculate physics
     {
         public RaycastHit2D bottomLeft;
         public RaycastHit2D bottomRight;
@@ -14,9 +14,11 @@ public class PhysicsCharacter : MonoBehaviour {
         public RaycastHit2D lowerRight;
         public RaycastHit2D top;
     }
-    private PlayerRaycasts raycasts; // Stores the actual information of the raycasts to calculate physics
+    protected PlayerRaycasts raycasts; // Stores the actual information of the raycasts to calculate physics
 
-    [SerializeField] float gravity;
+    protected LayerMask groundMask;
+
+    [SerializeField] protected float gravity;
 
     protected Vector3 velocity;
     [SerializeField] protected float veloYLimit = 1f;
@@ -26,9 +28,16 @@ public class PhysicsCharacter : MonoBehaviour {
 
     #region Unity Messages
 
+    protected virtual void Awake()
+    {
+        int groundLayer = LayerMask.NameToLayer("Ground");
+        groundMask = 1 << groundLayer;
+    }
+
     protected virtual void FixedUpdate()
     {
         UpdateRaycasts();
+        CheckGrounded();
         // Apply gravity
         if (!bGrounded)
         {
@@ -61,13 +70,17 @@ public class PhysicsCharacter : MonoBehaviour {
         }
 
         // Make sure, velocity in y axis does not get over limit
-        if (velocity.y < veloYLimit)
+        if(velocity.y >= 0 && velocity.y > veloYLimit)
         {
             velocity.y = veloYLimit;
         }
+        if (velocity.y <= 0 && velocity.y < -veloYLimit)
+        {
+            velocity.y = -veloYLimit;
+        }
 
         // Check if something is above the player and let him bounce down again relative to the force he went up with
-        if (RaycastForTag("Ground", raycasts.top) && velocity.y > 0)
+        if (raycasts.top && velocity.y > 0)
         {
             velocity.y = -velocity.y / 2;
         }
@@ -81,7 +94,7 @@ public class PhysicsCharacter : MonoBehaviour {
     {
         if (transform.localScale.x < 0)
         {
-            if (RaycastForTag("Ground", raycasts.upperLeft, raycasts.lowerLeft))
+            if (raycasts.upperLeft || raycasts.lowerLeft)
             {
                 bOnWall = true;
                 return true;
@@ -89,7 +102,7 @@ public class PhysicsCharacter : MonoBehaviour {
         }
         else if (transform.localScale.x > 0)
         {
-            if (RaycastForTag("Ground", raycasts.upperRight, raycasts.lowerRight))
+            if (raycasts.upperRight || raycasts.lowerRight)
             {
                 bOnWall = true;
                 return true;
@@ -105,7 +118,7 @@ public class PhysicsCharacter : MonoBehaviour {
     private void CheckGrounded()
     {
         // When the bottom left collider hit something tagged as ground
-        if (RaycastForTag("Ground", raycasts.bottomLeft) || RaycastForTag("Ground", raycasts.bottomRight))
+        if (raycasts.bottomLeft|| raycasts.bottomRight)
         {
             bGrounded = true;
             velocity.y = 0f;
@@ -115,27 +128,6 @@ public class PhysicsCharacter : MonoBehaviour {
         {
             bGrounded = false;
         }
-    }
-
-    /// <summary>
-    /// Checks if there is a raycast of the given in parameters hitting an object with the right tag
-    /// </summary>
-    /// <param name="tag"></param>
-    /// <param name="rayArray"></param>
-    /// <returns> True if there was any raycast hitting an object with the right tag. False if there was none.</returns>
-    bool RaycastForTag(string tag, params RaycastHit2D[] rayArray)
-    {
-        for (int i = 0; i < rayArray.Length; i++)
-        {
-            if (rayArray[i].collider != null)
-            {
-                if (rayArray[i].collider.tag == tag)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /// <summary>
@@ -164,17 +156,22 @@ public class PhysicsCharacter : MonoBehaviour {
     /// </summary>
     void UpdateRaycasts()
     {
-        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.01f + Vector3.down * 0.04f, Vector2.down, 0.01f);
-        raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.02f + Vector3.down * 0.04f, Vector2.down, 0.01f);
+        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
+        raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
 
-        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.03f + Vector3.right * 0.02f, Vector2.left, 0.01f);
-        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.04f + Vector3.right * 0.02f, Vector2.left, 0.01f);
+        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.75f, groundMask);
+        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.75f, groundMask);
 
-        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.03f + Vector3.right * -0.03f, Vector2.right, 0.01f);
-        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.04f + Vector3.right * -0.03f, Vector2.right, 0.01f);
+        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
+        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
 
-        raycasts.top = Physics2D.Raycast(transform.position + Vector3.right * -0.001f, Vector2.up, 0.02f);
+        raycasts.top = Physics2D.Raycast(transform.position, Vector2.up, 0.75f, groundMask);
     }
+
+    //private void OnDrawGizmos()
+    //{
+    //    Debug.DrawRay(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left * 0.75f);
+    //}
 
     #endregion
 

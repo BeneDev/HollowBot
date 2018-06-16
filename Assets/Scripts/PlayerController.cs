@@ -46,7 +46,7 @@ public class PlayerController : PhysicsCharacter {
         }
         set
         {
-            if(value > exp)
+            if(value >= exp)
             {
                 exp = value;
             }
@@ -150,7 +150,6 @@ public class PlayerController : PhysicsCharacter {
     Animator anim;
     Camera cam;
 
-    LayerMask groundMask;
     LayerMask enemiesMask;
 
     // Fields to manipulate the jump
@@ -198,23 +197,22 @@ public class PlayerController : PhysicsCharacter {
     #endregion
 
     // Use this for initialization
-    void Awake ()
+    protected override void Awake ()
     {
+        base.Awake();
         input = GetComponent<PlayerInput>();
         anim = GetComponent<Animator>();
         cam = Camera.main;
         InitializeAttributes();
 
-        // Create LayerMasks
-        int groundLayer = LayerMask.NameToLayer("Ground");
-        groundLayer = 1 << groundLayer;
-
+        // Create LayerMask
         int enemiesLayer = LayerMask.NameToLayer("Enemies");
         enemiesMask = 1 << enemiesLayer;
     }
 
     // Update is called once per frame
     void Update () {
+        CheckForInput();
 		if(playerState == State.freeToMove)
         {
             // Setting the x velocity when player is not knocked back
@@ -375,17 +373,17 @@ public class PlayerController : PhysicsCharacter {
     {
         if (input.Horizontal < 0)
         {
-            transform.localScale = -Vector3.right;
-            anim.SetBool("Idling", false);
+            transform.localScale = new Vector3(-1f, 1f, 1f);
+            //anim.SetBool("Idling", false);
         }
         else if (input.Horizontal > 0)
         {
-            transform.localScale = Vector3.right;
-            anim.SetBool("Idling", false);
+            transform.localScale = new Vector3(1f, 1f, 1f);
+            //anim.SetBool("Idling", false);
         }
         else
         {
-            anim.SetBool("Idling", true);
+            //anim.SetBool("Idling", true);
         }
     }
 
