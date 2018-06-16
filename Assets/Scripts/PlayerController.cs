@@ -172,11 +172,9 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] float dodgeCooldown = 1f;
 
     // Fields to manipulate the attack
-    [Header("Attack"), SerializeField] float attackReach = 0.2f; // How far the attack hitbox reaches
-    [SerializeField] float attackCooldown = 1f;
-    [SerializeField] float attackHitBoxDuration = 0.5f;
+    [Header("Attack"), SerializeField] float attackCooldown = 1f;
+    [SerializeField] float attackDuration = 0.5f;
     float timeWhenAttackStarted;
-    [SerializeField] float knockBackStrength = 3f; // The amount of knockback the player is applying to hit enemies
     Vector3 attackDirection; // The direction for the raycast, checking for enemies to hit
     [SerializeField] float upwardsVeloAfterHitDown = 0.06f; // The velocity with which the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
@@ -236,7 +234,7 @@ public class PlayerController : PhysicsCharacter {
             {
                 velocity.y -= fallMultiplier * Time.fixedDeltaTime;
             }
-            if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackHitBoxDuration + attackCooldown)
+            if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackDuration + attackCooldown)
             {
                 anim.SetTrigger("Attack");
                 Attack();
@@ -257,11 +255,7 @@ public class PlayerController : PhysicsCharacter {
         {
             // Setting the x velocity when player is not knocked back
             velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
-            if(Time.realtimeSinceStartup < timeWhenAttackStarted + attackHitBoxDuration)
-            {
-                AttackHitboxOut();
-            }
-            else if(Time.realtimeSinceStartup > timeWhenAttackStarted + attackHitBoxDuration)
+            if(Time.realtimeSinceStartup > timeWhenAttackStarted + attackDuration)
             {
                 playerState = State.freeToMove;
             }
@@ -452,31 +446,6 @@ public class PlayerController : PhysicsCharacter {
         }
         playerState = State.attacking;
         timeWhenAttackStarted = Time.realtimeSinceStartup;
-    }
-
-    /// <summary>
-    /// Check if an enemy is hit with the ray in the direction of the attack and damages him if so
-    /// </summary>
-    /// <param name="direction"></param>
-    private void AttackHitboxOut()
-    {
-        Collider2D[] enemiesHit = Physics2D.OverlapBoxAll(transform.position + attackDirection, new Vector2(attackReach, attackReach), 0f, enemiesMask);
-        bool bAlreadyHit = false;
-        if (enemiesHit.Length > 0 && !bAlreadyHit)
-        {
-            foreach(Collider2D coll in enemiesHit)
-            if (coll.tag == "Enemy")
-            {
-                // Calculate the direction, the player has to knock the opponent away
-                Vector3 knockDirection = coll.gameObject.transform.position - transform.position;
-                coll.gameObject.GetComponent<GeneralEnemy>().TakeDamage(attack, knockDirection.normalized * knockBackStrength);
-                bAlreadyHit = true;
-                if (velocity.y < 0)
-                {
-                    StartCoroutine(ExtraUpVeloAfterHitDown(upwardsVeloAfterHitDownTime));
-                }
-            }
-        }
     }
 
     IEnumerator ExtraUpVeloAfterHitDown(float duration)
