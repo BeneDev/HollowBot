@@ -167,9 +167,7 @@ public class PlayerController : PhysicsCharacter {
 
     // Fields to manipulate the Dodge
     [Header("Dodge"), SerializeField] float dodgePower = 100f; // Force forward when dodging
-    [SerializeField] float dodgeUpPower = 20f; // This defines the applied Dodge Up Power
     [SerializeField] float dodgeDuration = 1f;
-    float appliedDodgeUpPower; // The actual force getting applied upwards when dodging
     float timeWhenDodgeStarted;
     [SerializeField] float dodgeCooldown = 1f;
 
@@ -240,11 +238,10 @@ public class PlayerController : PhysicsCharacter {
             {
                 Attack();
             }
-            if (input.Dodge && bGrounded || bOnWall)
+            if (input.Dodge && Time.realtimeSinceStartup >= timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
             {
                 playerState = State.dodging;
                 timeWhenDodgeStarted = Time.realtimeSinceStartup;
-                appliedDodgeUpPower = dodgeUpPower;
             }
             // Checks for input for healing
             if (input.Heal && HealthJuice > 0 && Health < maxHealth)
@@ -277,27 +274,29 @@ public class PlayerController : PhysicsCharacter {
                 knockBackForce.y = 0;
             }
             // Check if knockback would let player end up in wall, if not apply it
-            if (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude, groundMask))
+            RaycastHit2D knockBackRay = Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude, groundMask);
+            if (!knockBackRay)
             {
                 velocity += knockBackForce;
             }
             else
             {
+                velocity += knockBackForce * knockBackRay.distance;
                 // Get Knocked back onto the wall
-                while (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude / 10, groundMask))
-                {
-                    velocity += knockBackForce / 10;
-                }
+                //while (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude / 10, groundMask))
+                //{
+                //    velocity += knockBackForce / 10;
+                //}
             }
         }
         else if(playerState == State.dodging)
         {
             if (Time.realtimeSinceStartup < timeWhenDodgeStarted + dodgeDuration)
             {
-                appliedDodgeUpPower -= appliedDodgeUpPower / 10;
-                velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, appliedDodgeUpPower * Time.fixedDeltaTime);
+                velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
+                velocity.y = 0f;
             }
-            else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
+            else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration)
             {
                 playerState = State.freeToMove;
             }

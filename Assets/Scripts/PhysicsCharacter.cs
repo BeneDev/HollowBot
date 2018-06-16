@@ -129,11 +129,11 @@ public class PhysicsCharacter : MonoBehaviour {
             velocity.y = 0f;
             if(raycasts.bottomLeft.distance < 0.7f)
             {
-                transform.position += Vector3.up * ((0.75f - (raycasts.bottomLeft.distance)) / 10f);
+                transform.position += Vector3.up * ((0.75f - (raycasts.bottomLeft.distance)) / 5f);
             }
             else if (raycasts.bottomLeft.distance < 0.7f)
             {
-                transform.position += Vector3.up * ((0.75f - (raycasts.bottomRight.distance)) / 10f);
+                transform.position += Vector3.up * ((0.75f - (raycasts.bottomRight.distance)) / 5f);
             }
         }
         // Otherwise the player is not grounded
