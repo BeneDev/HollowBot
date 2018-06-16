@@ -212,8 +212,10 @@ public class PlayerController : PhysicsCharacter {
     }
 
     // Update is called once per frame
-    void Update ()
+    protected override void FixedUpdate ()
     {
+        UpdateRaycasts();
+        CheckGrounded();
         CheckForInput();
 		if(playerState == State.freeToMove)
         {
@@ -226,13 +228,13 @@ public class PlayerController : PhysicsCharacter {
             }
             if(Time.realtimeSinceStartup < lastTimeJumped + jumpDuration && input.Jump == 2)
             {
-                velocity.y += appliedJumpPower * Time.deltaTime;
+                velocity.y += appliedJumpPower * Time.fixedDeltaTime;
                 appliedJumpPower *= lastTimeJumped + jumpDuration - Time.realtimeSinceStartup;
             }
             // Make the player fall faster when not holding the jump button
             if (input.Jump == 0 && !bGrounded)
             {
-                velocity.y -= fallMultiplier * Time.deltaTime;
+                velocity.y -= fallMultiplier * Time.fixedDeltaTime;
             }
             if (input.Attack)
             {
@@ -242,6 +244,7 @@ public class PlayerController : PhysicsCharacter {
             {
                 playerState = State.dodging;
                 timeWhenDodgeStarted = Time.realtimeSinceStartup;
+                anim.SetBool("Dodging", true);
             }
             // Checks for input for healing
             if (input.Heal && HealthJuice > 0 && Health < maxHealth)
@@ -299,6 +302,7 @@ public class PlayerController : PhysicsCharacter {
             else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration)
             {
                 playerState = State.freeToMove;
+                anim.SetBool("Dodging", false);
             }
         }
         else if(playerState == State.healing)
@@ -316,6 +320,14 @@ public class PlayerController : PhysicsCharacter {
                 playerState = State.freeToMove;
             }
         }
+        // Apply gravity
+        if (!bGrounded)
+        {
+            velocity += new Vector3(0, -gravity * Time.fixedDeltaTime);
+        }
+        CheckForValidVelocity();
+        anim.SetFloat("XVelocity", velocity.x);
+        anim.SetFloat("YVelocity", velocity.y);
         transform.position += velocity;
 	}
 
@@ -487,7 +499,13 @@ public class PlayerController : PhysicsCharacter {
 
     #endregion
 
-    #region Jump
+    #region Physics
+
+    protected override void CheckGrounded()
+    {
+        base.CheckGrounded();
+        anim.SetBool("Grounded", bGrounded);
+    }
 
     #endregion
 

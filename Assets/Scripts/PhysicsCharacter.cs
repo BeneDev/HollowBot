@@ -57,7 +57,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// <summary>
     /// Make sure the velocity does not violate the laws of physics in this game
     /// </summary>
-    void CheckForValidVelocity()
+    protected void CheckForValidVelocity()
     {
         // Check for ground under the player
         if (bGrounded && velocity.y < 0)
@@ -95,7 +95,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// Checks if there are walls in the direction the player is facing
     /// </summary>
     /// <returns> True if there is a wall. False when there is none</returns>
-    bool WallInWay()
+    protected bool WallInWay()
     {
         if (transform.localScale.x < 0)
         {
@@ -120,7 +120,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// <summary>
     /// Checks if the player is on the ground or not
     /// </summary>
-    private void CheckGrounded()
+    protected virtual void CheckGrounded()
     {
         // When the bottom raycasts hit ground
         if (raycasts.bottomLeft || raycasts.bottomRight)
@@ -149,7 +149,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// <param name="tag"></param>
     /// <param name="rayArray"></param>
     /// <returns> The first raycast who hit an object with the right tag</returns>
-    private RaycastHit2D? WhichRaycastForTag(string tag, params RaycastHit2D[] rayArray)
+    protected RaycastHit2D? WhichRaycastForTag(string tag, params RaycastHit2D[] rayArray)
     {
         for (int i = 0; i < rayArray.Length; i++)
         {
@@ -167,7 +167,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// <summary>
     /// Update all the different raycast hit values to calculate physics
     /// </summary>
-    void UpdateRaycasts()
+    protected void UpdateRaycasts()
     {
         raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
         raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
