@@ -76,24 +76,11 @@ public class PlayerInput : MonoBehaviour, IInput {
     }
 
     // Looks for Input for Picking up
-    public bool Pickup
+    public bool WeaponInteract
     {
         get
         {
-            if (Input.GetButtonDown("Pickup"))
-            {
-                return true;
-            }
-            return false;
-        }
-    }
-
-    // Looks for Input for Throwing
-    public bool Throw
-    {
-        get
-        {
-            if (Input.GetButtonDown("Throw"))
+            if (Input.GetButtonDown("WeaponInteract"))
             {
                 return true;
             }

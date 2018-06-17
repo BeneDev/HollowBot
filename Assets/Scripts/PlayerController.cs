@@ -233,10 +233,10 @@ public class PlayerController : PhysicsCharacter {
 
     private void Update()
     {
-        objectsInReach = Physics2D.OverlapBoxAll(transform.position, itemCheckReach, 0f);
-        if(playerState == State.freeToMove && input.Pickup && objectsInReach.Length > 0)
+        if(playerState == State.freeToMove && input.WeaponInteract && !weapon)
         {
-            foreach(Collider2D coll in objectsInReach)
+            objectsInReach = Physics2D.OverlapBoxAll(transform.position, itemCheckReach, 0f);
+            foreach (Collider2D coll in objectsInReach)
             {
                 if(coll.gameObject.GetComponent<WeaponController>())
                 {
@@ -275,7 +275,7 @@ public class PlayerController : PhysicsCharacter {
             {
                 Attack();
             }
-            if(input.Throw && weapon)
+            if(input.WeaponInteract && weapon)
             {
                 Throw();
             }

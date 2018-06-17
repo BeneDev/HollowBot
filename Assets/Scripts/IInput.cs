@@ -14,9 +14,7 @@ public interface IInput
 
     bool Attack { get; }
 
-    bool Pickup { get; }
-
-    bool Throw { get; }
+    bool WeaponInteract { get; }
 
     bool Heal { get; }
 }
