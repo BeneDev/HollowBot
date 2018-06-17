@@ -63,11 +63,12 @@ public class BaseEnemy : MonoBehaviour{
     protected bool bAlreadyDead = false;
 
     // Variables to find the player
-    protected GameObject player;
+    protected PlayerController player;
     protected Vector3 toPlayer;
 
     protected Rigidbody2D rb;
     Camera cam;
+    CameraShake camShake;
 
     protected float knockBackCounter = 0f;
     protected float stunnedCounter = 0f;
@@ -77,28 +78,25 @@ public class BaseEnemy : MonoBehaviour{
 
     // The layer mask used to collide with only walls
     protected LayerMask layersToCollideWith;
-    protected Collider2D coll;
+    protected BoxCollider2D coll;
 
     private SpriteRenderer rend;
-    private Shader shaderGUItext;
-    private Shader shaderSpritesDefault;
 
     #endregion
 
     /// <summary>
     /// The general things an enemy should do in his start or awake method
     /// </summary>
-    protected virtual void GeneralInitialization()
+    protected virtual void Awake()
     {
         // Find the renderer, the gui shader and the default sprite shader
         rend = gameObject.GetComponent<SpriteRenderer>();
-        shaderGUItext = Shader.Find("GUI/Text Shader");
-        shaderSpritesDefault = Shader.Find("Sprites/Diffuse");
 
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody2D>();
 
         cam = Camera.main;
+        camShake = cam.GetComponent<CameraShake>();
 
         // Get the layerMask for collision
         int layer = LayerMask.NameToLayer("Ground");
@@ -110,7 +108,7 @@ public class BaseEnemy : MonoBehaviour{
     /// <summary>
     /// The general things an enemy should do in his update method
     /// </summary>
-    protected virtual void GeneralBehavior()
+    protected virtual void Update()
     {
         // Store the vector towards the player
         toPlayer = player.transform.position - transform.position;
@@ -118,7 +116,7 @@ public class BaseEnemy : MonoBehaviour{
         // Attacks the player if he within reach
         if (toPlayer.magnitude <= hitRange)
         {
-            player.GetComponent<PlayerController>().TakeDamage(attack, CalculateKnockback());
+            player.TakeDamage(attack, CalculateKnockback());
         }
         //if (Health <= 0)
         //{
@@ -137,7 +135,7 @@ public class BaseEnemy : MonoBehaviour{
         // Make time freeze for more frames
         StartCoroutine(StopTimeForFrames(amountFreezeFrames + 10));
         // Make the camera shake more
-        cam.GetComponent<CameraShake>().shakeDuration = cameraShakeAmount * 10f;
+        camShake.shakeDuration = cameraShakeAmount * 10f;
         if (juiceParticle)
         {
             for (int i = 0; i < particleCountAtDeath; i++)
@@ -145,7 +143,7 @@ public class BaseEnemy : MonoBehaviour{
                 Instantiate(juiceParticle, transform.position, transform.rotation);
             }
         }
-        player.GetComponent<PlayerController>().Exp += expToGive;
+        player.Exp += expToGive;
     }
 
     /// <summary>
@@ -166,9 +164,7 @@ public class BaseEnemy : MonoBehaviour{
         {
             Health--;
         }
-        // Let the enemy sprite flash up white
-        rend.material.shader = shaderGUItext;
-        rend.color = Color.white;
+        // TODO trigger damaged animation
         StartCoroutine(SetBackToDefaultShader(flashDuration));
         knockBackCounter = knockedBackDuration;
         if(health > 0)
@@ -176,7 +172,7 @@ public class BaseEnemy : MonoBehaviour{
             // Make time freeze for some frames
             StartCoroutine(StopTimeForFrames(amountFreezeFrames));
             // Make the camera shake
-            cam.GetComponent<CameraShake>().shakeDuration = cameraShakeAmount;
+            camShake.shakeDuration = cameraShakeAmount;
         }
     }
 
@@ -225,8 +221,6 @@ public class BaseEnemy : MonoBehaviour{
     IEnumerator SetBackToDefaultShader(float sec)
     {
         yield return new WaitForSeconds(sec);
-        rend.material.shader = shaderSpritesDefault;
-        rend.color = Color.white;
     }
 
     /// <summary>

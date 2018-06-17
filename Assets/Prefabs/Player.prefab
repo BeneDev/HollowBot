@@ -185,6 +185,7 @@ MonoBehaviour:
   upwardsVeloAfterHitDownTime: 0
   arm: {fileID: 1603425647859582}
   grabbingArm: {fileID: 21300004, guid: 3dcbf99833dac0b448a64f58f5cc1950, type: 3}
+  normalArm: {fileID: 21300006, guid: 3dcbf99833dac0b448a64f58f5cc1950, type: 3}
   healDuration: 5
   juiceRegenValue: 10
   zoomAmountWhenHealing: 0.002

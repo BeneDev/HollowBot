@@ -162,7 +162,7 @@ public class PlayerController : PhysicsCharacter {
     Animator anim;
     Camera cam;
 
-    LayerMask enemiesMask;
+    LayerMask enemiesAndGroundMask;
 
     // Fields to manipulate the jump
     [Header("Jump & Physics"), SerializeField] float jumpPower = 10;
@@ -191,6 +191,7 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] GameObject arm;
     [SerializeField] Sprite grabbingArm;
+    [SerializeField] Sprite normalArm;
     bool isThrowing = false;
 
     // Fields to manipulate the healing
@@ -226,7 +227,8 @@ public class PlayerController : PhysicsCharacter {
 
         // Create LayerMask
         int enemiesLayer = LayerMask.NameToLayer("Enemies");
-        enemiesMask = 1 << enemiesLayer;
+        enemiesAndGroundMask = 1 << enemiesLayer;
+        enemiesAndGroundMask = enemiesAndGroundMask | groundMask;
     }
 
     private void Update()
@@ -419,8 +421,9 @@ public class PlayerController : PhysicsCharacter {
         {
             if (OnWeaponThrown != null)
             {
-                OnWeaponThrown((input.Vertical > 0.3f) ? input.Vertical : 0.3f);
+                OnWeaponThrown((input.Vertical > 0.2f) ? input.Vertical : 0.2f);
             }
+            arm.GetComponent<SpriteRenderer>().sprite = normalArm;
             this.weapon = null;
             isThrowing = false;
         }
@@ -569,6 +572,20 @@ public class PlayerController : PhysicsCharacter {
     {
         base.CheckGrounded();
         anim.SetBool("Grounded", bGrounded);
+    }
+
+    protected override void UpdateRaycasts()
+    {
+        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
+        raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
+
+        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.5f, enemiesAndGroundMask);
+        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.5f, enemiesAndGroundMask);
+
+        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.5f, enemiesAndGroundMask);
+        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.5f, enemiesAndGroundMask);
+
+        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.5f, enemiesAndGroundMask);
     }
 
     #endregion

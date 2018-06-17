@@ -167,7 +167,7 @@ public class PhysicsCharacter : MonoBehaviour {
     /// <summary>
     /// Update all the different raycast hit values to calculate physics
     /// </summary>
-    protected void UpdateRaycasts()
+    protected virtual void UpdateRaycasts()
     {
         raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
         raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
