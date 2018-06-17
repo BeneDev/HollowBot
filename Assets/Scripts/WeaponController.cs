@@ -59,7 +59,9 @@ public class WeaponController : MonoBehaviour {
             }
             if (hitsUntilBreak <= 0)
             {
-                //TODO trigger explosion particle
+                GameManager.Instance.BreakWeapon(transform.position);
+                owner.OnAttack -= OnAttack;
+                owner.OnWeaponThrown -= OnThrown;
                 Destroy(gameObject);
             }
         }
@@ -81,7 +83,9 @@ public class WeaponController : MonoBehaviour {
             }
             if (hitsUntilBreak <= 0)
             {
-                //TODO trigger explosion particle
+                GameManager.Instance.BreakWeapon(transform.position);
+                owner.OnAttack -= OnAttack;
+                owner.OnWeaponThrown -= OnThrown;
                 Destroy(gameObject);
             }
         }
