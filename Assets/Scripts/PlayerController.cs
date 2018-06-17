@@ -188,6 +188,7 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] float upwardsVeloAfterHitDown = 0.06f; // The velocity with which the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] GameObject arm;
+    [SerializeField] Sprite grabbingArm;
 
     // Fields to manipulate the healing
     [Header("Healing"), SerializeField] int healDuration = 5; // The frames one has to wait in between one transfer of Health juice to health
@@ -394,6 +395,7 @@ public class PlayerController : PhysicsCharacter {
             weapon.transform.localRotation = Quaternion.Euler(rotForEquippedWeapons);
             weapon.transform.localScale = Vector3.one;
             weapon.GetComponent<WeaponController>().OnSomethingHit += OnSomethingHit;
+            arm.GetComponent<SpriteRenderer>().sprite = grabbingArm;
         }
     }
 
