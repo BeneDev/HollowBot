@@ -334,7 +334,6 @@ MonoBehaviour:
   knockedBackDuration: 0.2
   hitRange: 2
   knockBackStrength: 3
-  damagedSprite: {fileID: 21300002, guid: 3dcbf99833dac0b448a64f58f5cc1950, type: 3}
 --- !u!212 &1326468466
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -538,6 +537,38 @@ Prefab:
     - target: {fileID: 4915968484142614, guid: ee626915b786da34a878e004973e5028, type: 2}
       propertyPath: m_RootOrder
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: -0.031584203
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 0.99950117
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -3.6200001
+      objectReference: {fileID: 0}
+    - target: {fileID: 4915968484142614, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4556469142677966, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0.294
+      objectReference: {fileID: 0}
+    - target: {fileID: 4283600813129448, guid: ee626915b786da34a878e004973e5028, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0.198
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ee626915b786da34a878e004973e5028, type: 2}

@@ -251,9 +251,9 @@ public class PlayerController : PhysicsCharacter {
     {
         UpdateRaycasts();
         CheckGrounded();
-        CheckForInput();
 		if(playerState == State.freeToMove)
         {
+            CheckForInput();
             // Setting the x velocity when player is not knocked back
             velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
             if (input.Jump == 1 && bGrounded || input.Jump == 1 && bOnWall)
