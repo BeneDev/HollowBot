@@ -25,7 +25,7 @@ public class GameManager : Singleton<GameManager> {
         // Instantiate a defined number of balls into the free cannon balls stack (Preparation for object pooling)
         for (int i = 0; i < weaponBreakParticleCount; i++)
         {
-            GameObject particle = Instantiate(weaponBreakParticlePrefab, Vector3.zero, transform.rotation);
+            GameObject particle = Instantiate(weaponBreakParticlePrefab, Vector3.zero, Quaternion.Euler(Vector3.right * 90f));
             particle.SetActive(false);
             particle.transform.SetParent(weaponBreakParticleParent.transform);
             freeWeaponBreakParticles.Push(particle);
@@ -36,7 +36,7 @@ public class GameManager : Singleton<GameManager> {
     public void BreakWeapon(Vector3 positionToSpawn)
     {
         GameObject particle = freeWeaponBreakParticles.Pop();
-        particle.transform.position = positionToSpawn;
+        particle.transform.position = new Vector3(positionToSpawn.x, positionToSpawn.y, -0.5f);
         particle.SetActive(true);
         particle.GetComponent<ParticleSystem>().Play();
         StartCoroutine(GetParticleBackAfterSeconds(particle.GetComponent<ParticleSystem>().main.duration, particle));
