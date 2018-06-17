@@ -75,6 +75,32 @@ public class PlayerInput : MonoBehaviour, IInput {
         }
     }
 
+    // Looks for Input for Picking up
+    public bool Pickup
+    {
+        get
+        {
+            if (Input.GetButtonDown("Pickup"))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // Looks for Input for Throwing
+    public bool Throw
+    {
+        get
+        {
+            if (Input.GetButtonDown("Throw"))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
     public bool Heal
     {
         get

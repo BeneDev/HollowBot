@@ -120,6 +120,8 @@ public class PlayerController : PhysicsCharacter {
 
     public event System.Action<float> OnAttack;
 
+    public event System.Action<float> OnWeaponThrown;
+
     #endregion
 
     // The attributes of the player
@@ -189,6 +191,7 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] GameObject arm;
     [SerializeField] Sprite grabbingArm;
+    bool isThrowing = false;
 
     // Fields to manipulate the healing
     [Header("Healing"), SerializeField] int healDuration = 5; // The frames one has to wait in between one transfer of Health juice to health
@@ -229,7 +232,7 @@ public class PlayerController : PhysicsCharacter {
     private void Update()
     {
         objectsInReach = Physics2D.OverlapBoxAll(transform.position, itemCheckReach, 0f);
-        if(playerState == State.freeToMove && input.Vertical > 0.5f && objectsInReach.Length > 0)
+        if(playerState == State.freeToMove && input.Pickup && objectsInReach.Length > 0)
         {
             foreach(Collider2D coll in objectsInReach)
             {
@@ -269,6 +272,10 @@ public class PlayerController : PhysicsCharacter {
             if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackDuration + attackCooldown)
             {
                 Attack();
+            }
+            if(input.Throw && weapon)
+            {
+                Throw();
             }
             if (input.Dodge && Time.realtimeSinceStartup >= timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
             {
@@ -399,12 +406,32 @@ public class PlayerController : PhysicsCharacter {
         }
     }
 
+    void Throw()
+    {
+        weapon.GetComponent<WeaponController>().OnSomethingHit -= OnSomethingHit;
+        isThrowing = true;
+        Attack();
+    }
+
+    public void ReleaseWeapon()
+    {
+        if(isThrowing)
+        {
+            if (OnWeaponThrown != null)
+            {
+                OnWeaponThrown((input.Vertical > 0.3f) ? input.Vertical : 0.3f);
+            }
+            this.weapon = null;
+            isThrowing = false;
+        }
+    }
+
     /// <summary>
     /// This gets called, when the equipped weapon hits something
     /// </summary>
     void OnSomethingHit()
     {
-
+        // TODO apply knockback to the player
     }
 
     #region Attribute Handling

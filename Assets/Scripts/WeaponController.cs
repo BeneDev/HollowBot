@@ -10,15 +10,23 @@ public class WeaponController : MonoBehaviour {
 
     GameObject player;
 
+    Rigidbody2D rb;
+
     [SerializeField] int damage;
+    [SerializeField] int thrownDamageMultiplier = 4;
     [SerializeField] float knockBackStrength;
+    [SerializeField] int thrownKnockBackMultiplier = 2;
+    [SerializeField] float thrownForce = 3f;
 
     bool equipped = false;
     bool isAttacking = false;
 
+    bool isFlying = false;
+
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -39,11 +47,24 @@ public class WeaponController : MonoBehaviour {
                 }
             }
         }
-        else
+        else if(!isFlying)
         {
             if(collision.gameObject.Equals(player))
             {
                 // TODO Show stats of weapon and how to equip it overlay menu
+            }
+        }
+        else if(isFlying)
+        {
+            if (collision.gameObject.GetComponent<BaseEnemy>())
+            {
+                Vector3 knockBackDirection = collision.transform.position - transform.position;
+                knockBackDirection.y = 0f;
+                collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(damage * thrownDamageMultiplier, knockBackDirection.normalized * (knockBackStrength * thrownKnockBackMultiplier));
+            }
+            else
+            {
+                isFlying = false;
             }
         }
     }
@@ -53,7 +74,23 @@ public class WeaponController : MonoBehaviour {
         owner = player.GetComponent<PlayerController>();
         owner.Equip(gameObject);
         equipped = true;
+        rb.isKinematic = true;
+        rb.angularVelocity = 0f;
+        rb.velocity = Vector2.zero;
         owner.OnAttack += OnAttack;
+        owner.OnWeaponThrown += OnThrown;
+    }
+
+    void OnThrown(float YVelocity)
+    {
+        rb.isKinematic = false;
+        transform.parent = null;
+        owner.OnAttack -= OnAttack;
+        owner.OnWeaponThrown -= OnThrown;
+        Vector2 Force = -((Vector2)player.transform.position - (Vector2)transform.position).normalized * thrownForce;
+        Force.y *= YVelocity;
+        rb.velocity += Force;
+        isFlying = true;
     }
 
     void OnAttack(float duration)
