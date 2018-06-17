@@ -23,10 +23,8 @@ public class WeaponController : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        print("im here");
         if(equipped && isAttacking)
         {
-            print("attacking");
             if(OnSomethingHit != null)
             {
                 OnSomethingHit();
@@ -54,6 +52,7 @@ public class WeaponController : MonoBehaviour {
     {
         owner = player.GetComponent<PlayerController>();
         owner.Equip(gameObject);
+        equipped = true;
         owner.OnAttack += OnAttack;
     }
 
