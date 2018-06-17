@@ -17,6 +17,7 @@ public class WeaponController : MonoBehaviour {
     [SerializeField] float knockBackStrength;
     [SerializeField] int thrownKnockBackMultiplier = 2;
     [SerializeField] float thrownForce = 3f;
+    [SerializeField] int hitsUntilBreak = 5;
 
     [SerializeField] ParticleSystem attackParticle;
     ParticleSystem.EmissionModule attackEmission;
@@ -53,7 +54,13 @@ public class WeaponController : MonoBehaviour {
                     Vector3 knockBackDirection = collision.transform.position - owner.gameObject.transform.position;
                     knockBackDirection.y = 0f;
                     collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(owner.Damage + damage, knockBackDirection.normalized * knockBackStrength);
+                    hitsUntilBreak--;
                 }
+            }
+            if (hitsUntilBreak <= 0)
+            {
+                //TODO trigger explosion particle
+                Destroy(gameObject);
             }
         }
         else if(!isFlying)
@@ -70,11 +77,21 @@ public class WeaponController : MonoBehaviour {
                 Vector3 knockBackDirection = collision.transform.position - transform.position;
                 knockBackDirection.y = 0f;
                 collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(damage * thrownDamageMultiplier, knockBackDirection.normalized * (knockBackStrength * thrownKnockBackMultiplier));
+                hitsUntilBreak -= 2;
             }
-            else
+            if (hitsUntilBreak <= 0)
             {
-                isFlying = false;
+                //TODO trigger explosion particle
+                Destroy(gameObject);
             }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(isFlying)
+        {
+            isFlying = false;
         }
     }
 
