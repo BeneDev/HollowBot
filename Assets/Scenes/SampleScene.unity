@@ -287,21 +287,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 198299424009787916, guid: f6e4a4e05bc528940b6e4474b04b2ec5,
-        type: 2}
-      propertyPath: lengthInSec
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 198299424009787916, guid: f6e4a4e05bc528940b6e4474b04b2ec5,
-        type: 2}
-      propertyPath: InitialModule.startLifetime.minScalar
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 198299424009787916, guid: f6e4a4e05bc528940b6e4474b04b2ec5,
-        type: 2}
-      propertyPath: InitialModule.startLifetime.scalar
-      value: 0.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f6e4a4e05bc528940b6e4474b04b2ec5, type: 2}
   m_IsPrefabParent: 0

@@ -929,7 +929,7 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_GenerateMotionCurves: 0
   m_Events:
-  - time: 0.14166667
+  - time: 0.13333334
     functionName: ReleaseWeapon
     data: 
     objectReferenceParameter: {fileID: 0}

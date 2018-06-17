@@ -210,8 +210,8 @@ MonoBehaviour:
   dodgePower: 0.5
   dodgeDuration: 0.25
   dodgeCooldown: 0.3
-  attackCooldown: 0.35
-  attackDuration: 0.3
+  attackCooldown: 0.45
+  attackDuration: 0.15
   upwardsVeloAfterHitDown: 0
   upwardsVeloAfterHitDownTime: 0
   arm: {fileID: 1603425647859582}

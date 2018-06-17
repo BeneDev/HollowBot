@@ -22,8 +22,9 @@ public class WeaponController : MonoBehaviour {
     ParticleSystem.EmissionModule attackEmission;
     ParticleSystem.MinMaxCurve standardEmissionRate;
 
+    BoxCollider2D coll;
+
     bool equipped = false;
-    bool isAttacking = false;
 
     bool isFlying = false;
 
@@ -31,6 +32,7 @@ public class WeaponController : MonoBehaviour {
     {
         player = GameObject.FindGameObjectWithTag("Player");
         rb = GetComponent<Rigidbody2D>();
+        coll = GetComponent<BoxCollider2D>();
         attackEmission = attackParticle.emission;
         standardEmissionRate = attackEmission.rateOverDistance;
         attackEmission.rateOverDistance = 0f;
@@ -38,7 +40,7 @@ public class WeaponController : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(equipped && isAttacking)
+        if(equipped)
         {
             if(OnSomethingHit != null)
             {
@@ -86,31 +88,48 @@ public class WeaponController : MonoBehaviour {
         rb.velocity = Vector2.zero;
         owner.OnAttack += OnAttack;
         owner.OnWeaponThrown += OnThrown;
+        coll.enabled = false;
     }
 
-    void OnThrown(float YVelocity)
+    void OnThrown(float YVelocity, float direction)
     {
         rb.isKinematic = false;
+        equipped = false;
+        coll.enabled = true;
         transform.parent = null;
         owner.OnAttack -= OnAttack;
         owner.OnWeaponThrown -= OnThrown;
-        Vector2 Force = -((Vector2)player.transform.position - (Vector2)transform.position).normalized * thrownForce;
-        Force.y *= YVelocity;
-        rb.velocity += Force;
+        Vector2 force;
+        if (YVelocity > 0.5f)
+        {
+            force = Vector2.up * thrownForce;
+        }
+        else if(YVelocity < -0.5f)
+        {
+            force = Vector2.down * thrownForce;
+        }
+        else
+        {
+            force = new Vector2(direction * thrownForce, YVelocity);
+        }
+        rb.velocity += force;
         isFlying = true;
     }
 
     void OnAttack(float duration)
     {
         attackEmission.rateOverDistance = standardEmissionRate;
-        isAttacking = true;
+        coll.enabled = true;
         StartCoroutine(EndAttackAferSeconds(duration));
     }
 
     IEnumerator EndAttackAferSeconds(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        isAttacking = false;
+        if(equipped)
+        {
+            coll.enabled = false;
+        }
         attackEmission.rateOverDistance = 0f;
     }
 }

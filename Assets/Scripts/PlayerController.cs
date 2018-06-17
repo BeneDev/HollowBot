@@ -120,7 +120,7 @@ public class PlayerController : PhysicsCharacter {
 
     public event System.Action<float> OnAttack;
 
-    public event System.Action<float> OnWeaponThrown;
+    public event System.Action<float, float> OnWeaponThrown;
 
     #endregion
 
@@ -417,11 +417,15 @@ public class PlayerController : PhysicsCharacter {
 
     public void ReleaseWeapon()
     {
+        if(OnAttack != null)
+        {
+            OnAttack(attackDuration);
+        }
         if(isThrowing)
         {
             if (OnWeaponThrown != null)
             {
-                OnWeaponThrown((input.Vertical > 0.2f) ? input.Vertical : 0.2f);
+                OnWeaponThrown((input.Vertical > 0.2f || input.Vertical < -0.2f) ? input.Vertical : 0.2f, transform.localScale.x);
             }
             arm.GetComponent<SpriteRenderer>().sprite = normalArm;
             this.weapon = null;
@@ -510,10 +514,6 @@ public class PlayerController : PhysicsCharacter {
 
     void Attack()
     {
-        if (OnAttack != null)
-        {
-            OnAttack(attackDuration);
-        }
         if (input.Vertical > 0.5f)
         {
             anim.SetTrigger("AttackUp");
