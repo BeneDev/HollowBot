@@ -102,6 +102,14 @@ public class PhysicsCharacter : MonoBehaviour {
             if (raycasts.upperLeft || raycasts.lowerLeft)
             {
                 bOnWall = true;
+                if (raycasts.upperLeft.distance < 0.45f)
+                {
+                    transform.position += Vector3.right * ((0.45f - (raycasts.upperLeft.distance)) / 5f);
+                }
+                else if (raycasts.lowerLeft.distance < 0.45f)
+                {
+                    transform.position += Vector3.right * ((0.45f - (raycasts.lowerLeft.distance)) / 5f);
+                }
                 return true;
             }
         }
@@ -110,6 +118,14 @@ public class PhysicsCharacter : MonoBehaviour {
             if (raycasts.upperRight || raycasts.lowerRight)
             {
                 bOnWall = true;
+                if (raycasts.upperRight.distance < 0.45f)
+                {
+                    transform.position += Vector3.left * ((0.45f - (raycasts.upperRight.distance)) / 5f);
+                }
+                else if (raycasts.lowerRight.distance < 0.45f)
+                {
+                    transform.position += Vector3.left * ((0.45f - (raycasts.lowerRight.distance)) / 5f);
+                }
                 return true;
             }
         }
@@ -131,7 +147,7 @@ public class PhysicsCharacter : MonoBehaviour {
             {
                 transform.position += Vector3.up * ((0.75f - (raycasts.bottomLeft.distance)) / 5f);
             }
-            else if (raycasts.bottomLeft.distance < 0.7f)
+            else if (raycasts.bottomRight.distance < 0.7f)
             {
                 transform.position += Vector3.up * ((0.75f - (raycasts.bottomRight.distance)) / 5f);
             }
@@ -169,21 +185,22 @@ public class PhysicsCharacter : MonoBehaviour {
     /// </summary>
     protected virtual void UpdateRaycasts()
     {
-        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
+        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.1f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
         raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, groundMask);
 
-        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.75f, groundMask);
-        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.75f, groundMask);
+        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.5f, groundMask);
+        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.5f, groundMask);
 
-        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
-        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.75f, groundMask);
+        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.5f, groundMask);
+        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.5f, groundMask);
 
-        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.75f, groundMask);
+        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.5f, groundMask);
     }
 
     //private void OnDrawGizmos()
     //{
-    //    Debug.DrawRay(transform.position + Vector3.up * 0.75f, Vector2.up * 0.75f);
+    //    Debug.DrawRay(transform.position + Vector3.right * 0.1f + Vector3.down * 0.4f, Vector2.down * 0.75f);
+    //    Debug.DrawRay(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down * 0.75f);
     //}
 
     #endregion

@@ -256,7 +256,7 @@ public class PlayerController : PhysicsCharacter {
             CheckForInput();
             // Setting the x velocity when player is not knocked back
             velocity = new Vector3(input.Horizontal * speed * Time.fixedDeltaTime, velocity.y);
-            if (input.Jump == 1 && bGrounded || input.Jump == 1 && bOnWall)
+            if (input.Jump == 1 && bGrounded)
             {
                 lastTimeJumped = Time.realtimeSinceStartup;
                 appliedJumpPower = jumpPower;
@@ -576,7 +576,7 @@ public class PlayerController : PhysicsCharacter {
 
     protected override void UpdateRaycasts()
     {
-        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
+        raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.1f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
         raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
 
         raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.5f, enemiesAndGroundMask);

@@ -192,7 +192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ae30e640f5b0a4fb57f693bac01ad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravity: 2
+  gravity: 1.5
   veloYLimit: 2
   drag: 3
   maxHealth: 100
