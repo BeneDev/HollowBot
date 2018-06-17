@@ -21,8 +21,9 @@ public class WeaponController : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
+        print("im here");
         if(equipped && isAttacking)
         {
             print("attacking");

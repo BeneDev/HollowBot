@@ -203,6 +203,7 @@ public class PlayerController : PhysicsCharacter {
     Collider2D[] objectsInReach;
     [SerializeField] Vector3 posForEquippedWeapons;
     [SerializeField] Vector3 rotForEquippedWeapons;
+    GameObject weapon;
 
     // Walking speed of the Player
     [SerializeField] float speed = 1;
@@ -393,9 +394,11 @@ public class PlayerController : PhysicsCharacter {
     {
         if(arm)
         {
+            this.weapon = weapon;
             weapon.transform.parent = arm.transform;
             weapon.transform.localPosition = posForEquippedWeapons;
             weapon.transform.localRotation = Quaternion.Euler(rotForEquippedWeapons);
+            weapon.transform.localScale = Vector3.one;
             weapon.GetComponent<WeaponController>().OnSomethingHit += OnSomethingHit;
         }
     }
@@ -468,16 +471,10 @@ public class PlayerController : PhysicsCharacter {
         if (input.Horizontal < 0)
         {
             transform.localScale = new Vector3(-1f, 1f, 1f);
-            //anim.SetBool("Idling", false);
         }
         else if (input.Horizontal > 0)
         {
-            transform.localScale = new Vector3(1f, 1f, 1f);
-            //anim.SetBool("Idling", false);
-        }
-        else
-        {
-            //anim.SetBool("Idling", true);
+            transform.localScale = Vector3.one;
         }
     }
 
