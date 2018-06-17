@@ -185,7 +185,6 @@ public class PlayerController : PhysicsCharacter {
     [Header("Attack"), SerializeField] float attackCooldown = 1f;
     [SerializeField] float attackDuration = 0.5f;
     float timeWhenAttackStarted;
-    Vector3 attackDirection; // The direction for the raycast, checking for enemies to hit
     [SerializeField] float upwardsVeloAfterHitDown = 0.06f; // The velocity with which the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] GameObject arm;
@@ -268,11 +267,6 @@ public class PlayerController : PhysicsCharacter {
             }
             if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackDuration + attackCooldown)
             {
-                if(OnAttack != null)
-                {
-                    OnAttack(attackDuration);
-                }
-                anim.SetTrigger("Attack");
                 Attack();
             }
             if (input.Dodge && Time.realtimeSinceStartup >= timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
@@ -482,18 +476,23 @@ public class PlayerController : PhysicsCharacter {
 
     #region Attack
 
-    /// <summary>
-    /// Make the player attack, setting the direction of attack, hitbox and animation fields
-    /// </summary>
-    private void Attack()
+    void Attack()
     {
-        if (input.Horizontal != 0f || input.Vertical != 0f)
+        if (OnAttack != null)
         {
-            attackDirection = new Vector3(input.Horizontal, input.Vertical);
+            OnAttack(attackDuration);
+        }
+        if (input.Vertical > 0.5f)
+        {
+            anim.SetTrigger("AttackUp");
+        }
+        else if (input.Vertical < -0.5f)
+        {
+            anim.SetTrigger("AttackDown");
         }
         else
         {
-            attackDirection = new Vector3(transform.localScale.x, 0f);
+            anim.SetTrigger("Attack");
         }
         playerState = State.attacking;
         timeWhenAttackStarted = Time.realtimeSinceStartup;
