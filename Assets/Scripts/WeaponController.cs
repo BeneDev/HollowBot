@@ -4,21 +4,67 @@ using UnityEngine;
 
 public class WeaponController : MonoBehaviour {
 
-    [SerializeField] PlayerController owner;
+    public event System.Action OnSomethingHit;
+
+    PlayerController owner;
+
+    GameObject player;
 
     [SerializeField] int damage;
     [SerializeField] float knockBackStrength;
 
+    bool equipped = false;
+    bool isAttacking = false;
+
+    private void Awake()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.GetComponent<BaseEnemy>())
+        if(equipped && isAttacking)
         {
-            if(owner)
+            print("attacking");
+            if(OnSomethingHit != null)
             {
-                Vector3 knockBackDirection = collision.transform.position - owner.gameObject.transform.position;
-                knockBackDirection.y = 0f;
-                collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(owner.Damage + damage, knockBackDirection.normalized * knockBackStrength);
+                OnSomethingHit();
+            }
+            if (collision.gameObject.GetComponent<BaseEnemy>())
+            {
+                if (owner)
+                {
+                    Vector3 knockBackDirection = collision.transform.position - owner.gameObject.transform.position;
+                    knockBackDirection.y = 0f;
+                    collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(owner.Damage + damage, knockBackDirection.normalized * knockBackStrength);
+                }
             }
         }
+        else
+        {
+            if(collision.gameObject.Equals(player))
+            {
+                // TODO Show stats of weapon and how to equip it overlay menu
+            }
+        }
+    }
+
+    public void Equip()
+    {
+        owner = player.GetComponent<PlayerController>();
+        owner.Equip(gameObject);
+        owner.OnAttack += OnAttack;
+    }
+
+    void OnAttack(float duration)
+    {
+        isAttacking = true;
+        StartCoroutine(EndAttackAferSeconds(duration));
+    }
+
+    IEnumerator EndAttackAferSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        isAttacking = false;
     }
 }

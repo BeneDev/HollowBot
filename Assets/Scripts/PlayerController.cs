@@ -118,6 +118,8 @@ public class PlayerController : PhysicsCharacter {
     // Delegate for Level changes
     public event System.Action<int> OnLevelChanged;
 
+    public event System.Action<float> OnAttack;
+
     #endregion
 
     // The attributes of the player
@@ -186,6 +188,7 @@ public class PlayerController : PhysicsCharacter {
     Vector3 attackDirection; // The direction for the raycast, checking for enemies to hit
     [SerializeField] float upwardsVeloAfterHitDown = 0.06f; // The velocity with which the player gets pushed upwards after hitting an enemy under him with a successful attack
     [SerializeField] float upwardsVeloAfterHitDownTime = 0.008f; // The duration the player gets pushed upwards after hitting an enemy under him with a successful attack
+    [SerializeField] GameObject arm;
 
     // Fields to manipulate the healing
     [Header("Healing"), SerializeField] int healDuration = 5; // The frames one has to wait in between one transfer of Health juice to health
@@ -195,6 +198,11 @@ public class PlayerController : PhysicsCharacter {
 
     [Header("General"), SerializeField] float invincibilityTime = 1f; // The amount of seconds, the player is invincible after getting hit
     private float invincibilityCounter = 0f; // This counts down until player can be hit again. Only if this value is 0, the player can be hit.
+
+    [Header("Weapons"), SerializeField] Vector2 itemCheckReach;
+    Collider2D[] objectsInReach;
+    [SerializeField] Vector3 posForEquippedWeapons;
+    [SerializeField] Vector3 rotForEquippedWeapons;
 
     // Walking speed of the Player
     [SerializeField] float speed = 1;
@@ -215,6 +223,21 @@ public class PlayerController : PhysicsCharacter {
         // Create LayerMask
         int enemiesLayer = LayerMask.NameToLayer("Enemies");
         enemiesMask = 1 << enemiesLayer;
+    }
+
+    private void Update()
+    {
+        objectsInReach = Physics2D.OverlapBoxAll(transform.position, itemCheckReach, 0f);
+        if(playerState == State.freeToMove && input.Vertical > 0.5f && objectsInReach.Length > 0)
+        {
+            foreach(Collider2D coll in objectsInReach)
+            {
+                if(coll.gameObject.GetComponent<WeaponController>())
+                {
+                    coll.gameObject.GetComponent<WeaponController>().Equip();
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -244,6 +267,10 @@ public class PlayerController : PhysicsCharacter {
             }
             if (input.Attack && Time.realtimeSinceStartup >= timeWhenAttackStarted + attackDuration + attackCooldown)
             {
+                if(OnAttack != null)
+                {
+                    OnAttack(attackDuration);
+                }
                 anim.SetTrigger("Attack");
                 Attack();
             }
@@ -360,6 +387,25 @@ public class PlayerController : PhysicsCharacter {
         playerState = State.freeToMove;
         Health = maxHealth;
         HealthJuice = maxHealthJuice;
+    }
+
+    public void Equip(GameObject weapon)
+    {
+        if(arm)
+        {
+            weapon.transform.parent = arm.transform;
+            weapon.transform.localPosition = posForEquippedWeapons;
+            weapon.transform.localRotation = Quaternion.Euler(rotForEquippedWeapons);
+            weapon.GetComponent<WeaponController>().OnSomethingHit += OnSomethingHit;
+        }
+    }
+
+    /// <summary>
+    /// This gets called, when the equipped weapon hits something
+    /// </summary>
+    void OnSomethingHit()
+    {
+
     }
 
     #region Attribute Handling
