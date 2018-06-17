@@ -18,6 +18,10 @@ public class WeaponController : MonoBehaviour {
     [SerializeField] int thrownKnockBackMultiplier = 2;
     [SerializeField] float thrownForce = 3f;
 
+    [SerializeField] ParticleSystem attackParticle;
+    ParticleSystem.EmissionModule attackEmission;
+    ParticleSystem.MinMaxCurve standardEmissionRate;
+
     bool equipped = false;
     bool isAttacking = false;
 
@@ -27,6 +31,9 @@ public class WeaponController : MonoBehaviour {
     {
         player = GameObject.FindGameObjectWithTag("Player");
         rb = GetComponent<Rigidbody2D>();
+        attackEmission = attackParticle.emission;
+        standardEmissionRate = attackEmission.rateOverDistance;
+        attackEmission.rateOverDistance = 0f;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -95,6 +102,7 @@ public class WeaponController : MonoBehaviour {
 
     void OnAttack(float duration)
     {
+        attackEmission.rateOverDistance = standardEmissionRate;
         isAttacking = true;
         StartCoroutine(EndAttackAferSeconds(duration));
     }
@@ -103,5 +111,6 @@ public class WeaponController : MonoBehaviour {
     {
         yield return new WaitForSeconds(seconds);
         isAttacking = false;
+        attackEmission.rateOverDistance = 0f;
     }
 }

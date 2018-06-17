@@ -579,13 +579,13 @@ public class PlayerController : PhysicsCharacter {
         raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.1f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
         raycasts.bottomLeft = Physics2D.Raycast(transform.position + Vector3.right * -0.2f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
 
-        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.5f, enemiesAndGroundMask);
-        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.5f, enemiesAndGroundMask);
+        raycasts.upperRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * 0.4f, Vector2.right, 0.25f, enemiesAndGroundMask);
+        raycasts.lowerRight = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * 0.4f, Vector2.right, 0.25f, enemiesAndGroundMask);
 
-        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.5f, enemiesAndGroundMask);
-        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.5f, enemiesAndGroundMask);
+        raycasts.upperLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f + Vector3.right * -0.4f, Vector2.left, 0.25f, enemiesAndGroundMask);
+        raycasts.lowerLeft = Physics2D.Raycast(transform.position + Vector3.up * -0.4f + Vector3.right * -0.4f, Vector2.left, 0.25f, enemiesAndGroundMask);
 
-        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.5f, enemiesAndGroundMask);
+        raycasts.top = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.up, 0.25f, enemiesAndGroundMask);
     }
 
     #endregion
