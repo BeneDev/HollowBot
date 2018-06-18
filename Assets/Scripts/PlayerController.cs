@@ -182,6 +182,9 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] float dodgeDuration = 1f;
     float timeWhenDodgeStarted;
     [SerializeField] float dodgeCooldown = 1f;
+    [SerializeField] ParticleSystem dodgeParticleSystem;
+    ParticleSystem.EmissionModule dodgeEmission;
+    ParticleSystem.MinMaxCurve baseDodgeEmissionRate;
 
     // Fields to manipulate the attack
     [Header("Attack"), SerializeField] float attackCooldown = 1f;
@@ -229,6 +232,17 @@ public class PlayerController : PhysicsCharacter {
         int enemiesLayer = LayerMask.NameToLayer("Enemies");
         enemiesAndGroundMask = 1 << enemiesLayer;
         enemiesAndGroundMask = enemiesAndGroundMask | groundMask;
+
+        if(dodgeParticleSystem)
+        {
+            dodgeEmission = dodgeParticleSystem.emission;
+            baseDodgeEmissionRate = dodgeEmission.rateOverDistance;
+            dodgeEmission.rateOverDistance = 0f;
+        }
+        else
+        {
+            Debug.LogError("There is no Dodge Particle System assigned to the Player. You need to do so in the Inspector!");
+        }
     }
 
     private void Update()
@@ -281,6 +295,7 @@ public class PlayerController : PhysicsCharacter {
             }
             if (input.Dodge && Time.realtimeSinceStartup >= timeWhenDodgeStarted + dodgeDuration + dodgeCooldown)
             {
+                dodgeEmission.rateOverDistance = baseDodgeEmissionRate;
                 playerState = State.dodging;
                 timeWhenDodgeStarted = Time.realtimeSinceStartup;
                 anim.SetBool("Dodging", true);
@@ -336,6 +351,7 @@ public class PlayerController : PhysicsCharacter {
             }
             else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration)
             {
+                dodgeEmission.rateOverDistance = 0f;
                 playerState = State.freeToMove;
                 anim.SetBool("Dodging", false);
             }
