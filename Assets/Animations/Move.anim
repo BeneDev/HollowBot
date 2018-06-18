@@ -129,6 +129,25 @@ AnimationClip:
     path: Body/JetEngine
     classID: 198
     script: {fileID: 0}
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: EmissionModule.rateOverDistance.scalar
+    path: DashStripes
+    classID: 198
+    script: {fileID: 0}
   m_PPtrCurves: []
   m_SampleRate: 60
   m_WrapMode: 0
@@ -167,6 +186,13 @@ AnimationClip:
       isPPtrCurve: 0
     - serializedVersion: 2
       path: 3721677770
+      attribute: 1589456374
+      script: {fileID: 0}
+      typeID: 198
+      customType: 27
+      isPPtrCurve: 0
+    - serializedVersion: 2
+      path: 1003917374
       attribute: 1589456374
       script: {fileID: 0}
       typeID: 198
@@ -482,6 +508,25 @@ AnimationClip:
       m_RotationOrder: 4
     attribute: EmissionModule.rateOverDistance.scalar
     path: Body/JetEngine
+    classID: 198
+    script: {fileID: 0}
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: EmissionModule.rateOverDistance.scalar
+    path: DashStripes
     classID: 198
     script: {fileID: 0}
   m_EulerEditorCurves:

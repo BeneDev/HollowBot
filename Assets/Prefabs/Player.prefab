@@ -241,7 +241,6 @@ MonoBehaviour:
   dodgePower: 0.5
   dodgeDuration: 0.25
   dodgeCooldown: 0.3
-  dodgeParticleSystem: {fileID: 198534521481622044}
   attackCooldown: 0.45
   attackDuration: 0.15
   upwardsVeloAfterHitDown: 0
@@ -5624,7 +5623,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
