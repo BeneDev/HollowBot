@@ -320,11 +320,6 @@ public class PlayerController : PhysicsCharacter {
             else
             {
                 velocity += knockBackForce * knockBackRay.distance;
-                // Get Knocked back onto the wall
-                //while (!Physics2D.Raycast(transform.position, knockBackForce, knockBackForce.magnitude / 10, groundMask))
-                //{
-                //    velocity += knockBackForce / 10;
-                //}
             }
         }
         else if(playerState == State.dodging)
@@ -333,13 +328,11 @@ public class PlayerController : PhysicsCharacter {
             {
                 if(transform.localScale.x > 0f && input.Horizontal >= 0f || transform.localScale.x < 0f && input.Horizontal <= 0f)
                 {
-                    print("yes");
                     velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
                     velocity.y = 0f;
                 }
                 else
                 {
-                    print("noo");
                     velocity += new Vector3((dodgePower * (1f - Mathf.Abs(input.Horizontal))) * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
                     velocity.y = 0f;
                 }
@@ -522,6 +515,7 @@ public class PlayerController : PhysicsCharacter {
 
     #region Attack
 
+    // Set the animation for the attack, depending on the direction.
     void Attack()
     {
         if (input.Vertical > 0.5f)
@@ -540,6 +534,7 @@ public class PlayerController : PhysicsCharacter {
         timeWhenAttackStarted = Time.realtimeSinceStartup;
     }
 
+    // Make the player get pushed upwards after something under him was hit
     IEnumerator ExtraUpVeloAfterHitDown(float duration)
     {
         for (float t = 0; t < duration; t += Time.fixedDeltaTime)
@@ -578,12 +573,14 @@ public class PlayerController : PhysicsCharacter {
 
     #region Physics
 
+    // Overrides the PhysicsCharacter Method, to control the animator.
     protected override void CheckGrounded()
     {
         base.CheckGrounded();
         anim.SetBool("Grounded", bGrounded);
     }
 
+    // Overrides the PhysicsCharacter Method to make the player collide with enemies aswell
     protected override void UpdateRaycasts()
     {
         raycasts.bottomRight = Physics2D.Raycast(transform.position + Vector3.right * 0.1f + Vector3.down * 0.4f, Vector2.down, 0.75f, enemiesAndGroundMask);
