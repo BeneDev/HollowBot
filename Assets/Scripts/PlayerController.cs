@@ -331,8 +331,18 @@ public class PlayerController : PhysicsCharacter {
         {
             if (Time.realtimeSinceStartup < timeWhenDodgeStarted + dodgeDuration)
             {
-                velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
-                velocity.y = 0f;
+                if(transform.localScale.x > 0f && input.Horizontal >= 0f || transform.localScale.x < 0f && input.Horizontal <= 0f)
+                {
+                    print("yes");
+                    velocity += new Vector3(dodgePower * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
+                    velocity.y = 0f;
+                }
+                else
+                {
+                    print("noo");
+                    velocity += new Vector3((dodgePower * (1f - Mathf.Abs(input.Horizontal))) * transform.localScale.x * speed * Time.fixedDeltaTime, 0f);
+                    velocity.y = 0f;
+                }
             }
             else if(Time.realtimeSinceStartup > timeWhenDodgeStarted + dodgeDuration)
             {
