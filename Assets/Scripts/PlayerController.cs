@@ -166,10 +166,12 @@ public class PlayerController : PhysicsCharacter {
 
     // Fields to manipulate the jump
     [Header("Jump & Physics"), SerializeField] float jumpPower = 10;
+    [SerializeField] float speed = 1; // Walking speed of the Player
     float appliedJumpPower;
     [SerializeField] float jumpDuration = 0.5f;
     float lastTimeJumped;
     [SerializeField] float fallMultiplier = 2f; // The higher this value, the slower the player will fall after jumping up, when still holding jump and the faster he will fall when not holding it
+    [SerializeField] float wallSlideSpeed = 3f; // How fast the player slides down a wall while holding towards it
 
     // Fields to manipulate the knockback Applied to the player
     [Header("Knockback"), SerializeField] float knockBackCapY = 2f; // the highest velocity the player can be vertically knocked back
@@ -208,11 +210,6 @@ public class PlayerController : PhysicsCharacter {
     [SerializeField] Vector3 posForEquippedWeapons;
     [SerializeField] Vector3 rotForEquippedWeapons;
     GameObject weapon;
-
-    // Walking speed of the Player
-    [SerializeField] float speed = 1;
-
-    [SerializeField] float wallSlideSpeed = 3f; // How fast the player slides down a wall while holding towards it
 
     #endregion
 

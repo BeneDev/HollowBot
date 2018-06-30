@@ -12,7 +12,7 @@ public class WeaponController : MonoBehaviour {
 
     Rigidbody2D rb;
 
-    [SerializeField] int damage;
+    [SerializeField] int weaponDamage;
     [SerializeField] int thrownDamageMultiplier = 4;
     [SerializeField] float knockBackStrength;
     [SerializeField] int thrownKnockBackMultiplier = 2;
@@ -53,7 +53,7 @@ public class WeaponController : MonoBehaviour {
                 {
                     Vector3 knockBackDirection = collision.transform.position - owner.gameObject.transform.position;
                     knockBackDirection.y = 0f;
-                    collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(owner.Damage + damage, knockBackDirection.normalized * knockBackStrength);
+                    collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(owner.Damage + weaponDamage, knockBackDirection.normalized * knockBackStrength);
                     hitsUntilBreak--;
                 }
             }
@@ -78,7 +78,7 @@ public class WeaponController : MonoBehaviour {
             {
                 Vector3 knockBackDirection = collision.transform.position - transform.position;
                 knockBackDirection.y = 0f;
-                collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(damage * thrownDamageMultiplier, knockBackDirection.normalized * (knockBackStrength * thrownKnockBackMultiplier));
+                collision.gameObject.GetComponent<BaseEnemy>().TakeDamage(weaponDamage * thrownDamageMultiplier, knockBackDirection.normalized * (knockBackStrength * thrownKnockBackMultiplier));
                 hitsUntilBreak -= 2;
             }
             if (hitsUntilBreak <= 0)
